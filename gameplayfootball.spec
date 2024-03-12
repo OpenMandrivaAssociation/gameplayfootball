@@ -1,4 +1,4 @@
-%define _disable_lto 1
+#define _disable_lto 1
 %define _disable_ld_no_undefined 1
 
 %global oname GameplayFootball
@@ -12,8 +12,17 @@ Release:	1
 Version:	0.2
 URL:		http://www.linphone.org
 Source0:	https://github.com/vi3itor/GameplayFootball/archive/%{version}/GameplayFootball-%{version}.tar.gz
+Source10:	gameplayfootball.6
+#Source11:	gameplayfootball.desktop
+Source12:	gameplayfootball.xpm
+Patch0:		gameplayfootball-0.2-cmake_version.patch
+Patch1:		gameplayfootball-0.2-cmake_link.patch
+Patch2:		gameplayfootball-0.2-cmake_install.patch
+# Pardus
+Patch10:	002-Config2UserHome.patch
 BuildRequires:	cmake
 BuildRequires:	ninja
+BuildRequires:	imagemagick
 BuildRequires:	boost-devel
 BuildRequires:	cmake(openal)
 BuildRequires:	cmake(sdl2)
@@ -43,6 +52,10 @@ audio effects, etc.) that was not necessary for their task.
 %{_bindir}/%{name}
 %{_libdir}/lib*.so
 %{_datadir}/%{name}
+%{_iconsdir}/hicolor/*/apps/%{name}.png
+%{_datadir}/pixmaps/%{name}.xpm
+%{_datadir}/applications/openmandriva-%{name}.desktop
+%{_mandir}/man6/%{name}.6*
 
 #--------------------------------------------------------------------
 
@@ -55,30 +68,60 @@ export CXXFLAGS="%{optflags} -O3 -fPIC"
 export LD_FLAGS=="%{ldflags}"
 %cmake \
 	-G Ninja
-%ninja_build
+%ninja_build -j1
 
 %install
-#ninja_install -C build
+%ninja_install -C build
 
 # binary
-install -pm 0755 -d %{buildroot}/%{_bindir}/
-install -pm 0755 build/%{name} %{buildroot}/%{_bindir}/
+#install -pm 0755 -d %{buildroot}/%{_bindir}/
+#install -pm 0755 build/%{name} %{buildroot}/%{_bindir}/
 
 # libraries
-install -pm 0755 -d %{buildroot}/%{_libdir}/
-for l in libblunted2.so	\
-		libdatalib.so	\
-		libgamelib.so	\
-		libhidlib.so	\
-		libleaguelib.so	\
-		libmenulib.so	\
-; do
-	install -pm 0755 build/$l %{buildroot}/%{_libdir}/
-done
+#install -pm 0755 -d %{buildroot}/%{_libdir}/
+#for l in libblunted2.so	\
+#		libdatalib.so	\
+#		libgamelib.so	\
+#		libhidlib.so	\
+#		libleaguelib.so	\
+#		libmenulib.so	\
+#; do
+#	install -pm 0755 build/$l %{buildroot}/%{_libdir}/
+#done
 
 # data
-install -pm 0755 -d %{buildroot}/%{_datadir}/%{name}/
-install -pm 0644 data/football.config %{buildroot}/%{_datadir}/%{name}/
-cp -fra data/databases %{buildroot}/%{_datadir}/%{name}/
-cp -fra data/media %{buildroot}/%{_datadir}/%{name}/
+#install -pm 0755 -d %{buildroot}/%{_datadir}/%{name}/
+#install -pm 0644 data/football.config %{buildroot}/%{_datadir}/%{name}/
+#cp -fra data/databases %{buildroot}/%{_datadir}/%{name}/
+#cp -fra data/media %{buildroot}/%{_datadir}/%{name}/
+
+# .desktop file
+install -dm 0755 %{buildroot}%{_datadir}/applications/
+cat > %{buildroot}%{_datadir}/applications/openmandriva-%{name}.desktop << EOF
+[Desktop Entry]
+Name=%{name}
+GenericName=Gameplay Football
+Exec=%{name}
+Icon=%{name}
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=Game;
+X-Vendor=OpenMandriva
+EOF
+
+# icons
+for d in 16 32 48 64 72 128 256
+do
+	install -dm 0755 %{buildroot}%{_iconsdir}/hicolor/${d}x${d}/apps/
+	convert -background none -size "${d}x${d}" %{SOURCE12} \
+			%{buildroot}%{_iconsdir}/hicolor/${d}x${d}/apps/%{name}.png
+done
+install -dm 0755 %{buildroot}%{_datadir}/pixmaps/
+convert -size 32x32 %{SOURCE12} \
+	%{buildroot}%{_datadir}/pixmaps/%{name}.xpm
+
+# manpage
+install -pm 0755 -d %{buildroot}/%{_mandir}/man6/
+install -pm 0644 %{SOURCE10} %{buildroot}/%{_mandir}/man6/
 

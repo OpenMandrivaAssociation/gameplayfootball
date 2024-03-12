@@ -1,0 +1,26 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -16,6 +16,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PAT
+ project(GameplayFootball)
+ 
+ set (CMAKE_CXX_STANDARD 14)
++include( GNUInstallDirs )
+ 
+ if(UNIX)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall")
+@@ -103,3 +111,14 @@ set(LIBRARIES gamelib hidlib menulib dat
+ 
+ add_executable(gameplayfootball WIN32 ${CORE_SOURCES} ${CORE_HEADERS})
+ target_link_libraries(gameplayfootball blunted2 -lblunted2 ${LIBRARIES})
++
++install(TARGETS gameplayfootball
++                DESTINATION ${CMAKE_INSTALL_BINDIR}
++                COMPONENT "Game executable")
++install(TARGETS blunted2 leaguelib gamelib hidlib menulib datalib
++                DESTINATION ${CMAKE_INSTALL_LIBDIR}
++                COMPONENT "Game shared libraries")
++install(DIRECTORY "data/."
++                DESTINATION ${CMAKE_INSTALL_DATADIR}/gameplayfootball
++                COMPONENT "Game data")
++
+

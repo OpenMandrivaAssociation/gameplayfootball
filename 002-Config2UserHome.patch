@@ -1,0 +1,67 @@
+Index: GameplayFootball/src/main.cpp
+===================================================================
+--- GameplayFootball.orig/src/main.cpp	2021-07-02 06:56:12.228639911 +0000
++++ GameplayFootball/src/main.cpp	2021-07-02 11:19:02.984996889 +0000
+@@ -38,6 +38,10 @@
+ #undef main
+ #endif
+ 
++#ifdef __linux__
++#include <fstream>
++#endif
++
+ using namespace blunted;
+ 
+ GraphicsSystem *graphicsSystem;
+@@ -98,6 +102,24 @@
+   return configFile;
+ }
+ 
++std::string StoreConfigOnUserProfile() {
++#ifdef __linux__
++  const char *homedir;
++  if ((homedir = getenv("HOME")) != NULL) {
++    configFile = (std::string) homedir + "/.config/." + configFile;
++    Log(e_Notice, "StoreConfigOnUserProfile", "()", configFile);
++    // check if file exists
++    std::fstream fs;
++    fs.open(configFile, std::fstream::app);
++    if (!fs )
++      Log(e_FatalError, "StoreConfigOnUserProfile", "()", "Unable to create or open configFile");
++    else
++      fs.close();
++  }
++#endif
++  return configFile;
++}
++
+ boost::shared_ptr<Scene2D> GetScene2D() {
+   return scene2D;
+ }
+@@ -272,7 +294,13 @@
+ int main(int argc, const char** argv) {
+ 
+   config = new Properties();
+-  if (argc > 1) configFile = argv[1];
++  if (argc > 1){
++    configFile = argv[1];
++  }
++  else{
++    StoreConfigOnUserProfile();
++  }
++
+   config->LoadFile(configFile.c_str());
+ 
+   Initialize(*config);
+Index: GameplayFootball/src/main.hpp
+===================================================================
+--- GameplayFootball.orig/src/main.hpp	2021-06-30 10:14:40.373829932 +0000
++++ GameplayFootball/src/main.hpp	2021-07-02 09:07:00.789041843 +0000
+@@ -45,6 +45,7 @@
+ boost::intrusive_ptr<Geometry> GetLargeDebugCircle();
+ 
+ std::string GetConfigFilename();
++std::string StoreConfigOnUserProfile();
+ boost::shared_ptr<Scene2D> GetScene2D();
+ boost::shared_ptr<Scene3D> GetScene3D();
+ GraphicsSystem *GetGraphicsSystem();

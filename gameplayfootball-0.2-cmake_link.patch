@@ -1,0 +1,37 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -27,6 +27,8 @@ endif(UNIX)
+ # SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -fPIC -O3 -g")
+ 
+ # Find required libraries
++find_package(PkgConfig REQUIRED)
++
+ FIND_PACKAGE(OpenGL REQUIRED)
+ include_directories(${OPENGL_INCLUDE_DIR})
+ 
+@@ -90,12 +92,18 @@ set(OWN_LIBRARIES $<TARGET_OBJECTS:basel
+ 
+ # Join all created static libraries into the single static one.
+ add_library(blunted2 ${BLUNTED_CORE_SOURCES} ${BLUNTED_CORE_HEADERS} ${OWN_LIBRARIES})
++target_link_libraries(blunted2 PRIVATE Boost::filesystem Boost::system Boost::thread SQLite::SQLite3 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES} ${SDL2_LIBRARIES} ${OPENAL_LIBRARY} dl m ${OPENGL_LIBRARIES})
+ 
+ add_library(leaguelib ${LEAGUE_SOURCES} ${LEAGUE_HEADERS})
++target_link_libraries(leaguelib PRIVATE blunted2 -lblunted2 Boost::filesystem Boost::system Boost::thread SQLite::SQLite3 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES} ${SDL2_LIBRARIES} ${OPENAL_LIBRARY} dl m ${OPENGL_LIBRARIES})
+ add_library(gamelib ${GAME_SOURCES} ${GAME_HEADERS})
++target_link_libraries(gamelib PRIVATE blunted2 Boost::filesystem Boost::system Boost::thread SQLite::SQLite3 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES} ${SDL2_LIBRARIES} ${OPENAL_LIBRARY} dl m ${OPENGL_LIBRARIES})
+ add_library(hidlib ${HID_SOURCES} ${HID_HEADERS})
++target_link_libraries(hidlib PRIVATE blunted2 Boost::filesystem Boost::system Boost::thread SQLite::SQLite3 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES} ${SDL2_LIBRARIES} ${OPENAL_LIBRARY} dl m ${OPENGL_LIBRARIES})
+ add_library(menulib ${MENU_SOURCES} ${MENU_HEADERS})
++target_link_libraries(menulib PRIVATE blunted2 Boost::filesystem Boost::system Boost::thread SQLite::SQLite3 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES} ${SDL2_LIBRARIES} ${OPENAL_LIBRARY} dl m ${OPENGL_LIBRARIES})
+ add_library(datalib ${DATA_SOURCES} ${DATA_HEADERS})
++target_link_libraries(datalib PRIVATE blunted2 Boost::filesystem Boost::system Boost::thread SQLite::SQLite3 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES} ${SDL2_LIBRARIES} ${OPENAL_LIBRARY} dl m ${OPENGL_LIBRARIES})
+ 
+ set(LIBRARIES gamelib hidlib menulib datalib leaguelib blunted2
+    Boost::filesystem Boost::system Boost::thread SQLite::SQLite3
+@@ -103,4 +111,4 @@ set(LIBRARIES gamelib hidlib menulib dat
+    ${SDL2_LIBRARIES} ${OPENAL_LIBRARY} dl m ${OPENGL_LIBRARIES})
+ 
+ add_executable(gameplayfootball WIN32 ${CORE_SOURCES} ${CORE_HEADERS})
+-target_link_libraries(gameplayfootball ${LIBRARIES})
++target_link_libraries(gameplayfootball blunted2 -lblunted2 ${LIBRARIES})
+
