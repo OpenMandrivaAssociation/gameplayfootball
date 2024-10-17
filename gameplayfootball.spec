@@ -9,7 +9,7 @@ License:	ASL 2.0
 Group:		Communications
 Release:	1
 Version:	0.2
-URL:		http://www.linphone.org
+URL:		https://www.linphone.org
 Source0:	https://github.com/vi3itor/GameplayFootball/archive/%{version}/GameplayFootball-%{version}.tar.gz
 Source10:	gameplayfootball.xpm
 Source11:	gameplayfootball.6
